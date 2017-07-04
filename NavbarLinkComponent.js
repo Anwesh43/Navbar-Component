@@ -20,12 +20,32 @@ class NavbarLinkComponent extends HTMLElement {
         this.div.style.width = canvas.width
         this.div.style.height = canvas.height
         const context = canvas.getContext('2d')
+        context.font = context.font.replace(/\d{2}/,canvas.height/2)
         context.fillStyle = this.color
         context.fillRect(0,0,w,canvas.height)
+        if(!this.elements) {
+            this.elements = []
+            var tw = 0
+            this.links.forEach((link,index) => {
+                link.tw = (context.measureText(link.title).width)*2
+                tw += link.tw
+            })
+            var x = w - tw
+            this.links.forEach((link,index) => {
+                this.elements.push(new NavbarElement(x,canvas.height/2,link)
+                x += link.tw
+            })
+        }
         this.div.style.background = canvas.toDataURL()
     }
     connectedCallback() {
         this.render()
+    }
+    handleTap(x) {
+        const tappedElements = this.elements.filter((element)=>element.handleTap(x))
+        if(tappedElements.length == 1) {
+            return tappedElements[0]
+        }
     }
 }
 class NavbarElement {
@@ -33,20 +53,19 @@ class NavbarElement {
         this.x = x
         this.y = y
         this.link = link
-        this.size = size
         this.scale = 0
         this.dir = 0
     }
     draw(context) {
+        const size = this.link.tw
         context.fillStyle = 'white'
-        const tw = context.measureText(this.link.title).width
-        context.fillText(this.link.text,this.x+this.size/2-tw/2,this.y)
+        context.fillText(this.link.text,size/4,this.y)
         context.strokeStyle = '#00838F'
-        const mx = this.x+this.size/2
+        const mx = this.x+size/2
         for(var i=0;i<2;i++) {
             context.beginPath()
             context.moveTo(mx,this.y+fontSize/2)
-            context.lineTo(mx-(2*i-1)*(this.size/2)*this.scale,this.y+fontSize/2)
+            context.lineTo(mx-(2*i-1)*(size/2)*this.scale,this.y+fontSize/2)
             context.stroke()
         }
     }
@@ -59,7 +78,8 @@ class NavbarElement {
         }
     }
     handleTap(x) {
-        const condition = x>=this.x && x<=this.x+this.size && dir == 0
+        const size = this.link.tw
+        const condition = x>=this.x && x<=this.x+size && dir == 0
         if(condition) {
             this.startUpdating()
         }
@@ -87,22 +107,26 @@ class AnimationHandler {
         this.elements = []
     }
     handleTap(x) {
-        if(this.animated == false) {
-            const interval = setInterval(()=>{
-                if(this.animated == true) {
-                    this.component.render()
-                    this.elements.forEach((element,index)=>{
-                        element.update()
-                        if(element.stopped() == true) {
-                            this.elements.splice(index,1)
-                            if(this.elements.length == 0) {
-                                this.animated = false
-                                clearInterval(interval)
+        const tappedElement = this.component.handleTap(x)
+        if(tappedElement) {
+            this.elements.push(tappedElement)
+            if(this.animated == false) {
+                const interval = setInterval(()=>{
+                    if(this.animated == true) {
+                        this.component.render()
+                        this.elements.forEach((element,index)=>{
+                            element.update()
+                            if(element.stopped() == true) {
+                                this.elements.splice(index,1)
+                                if(this.elements.length == 0) {
+                                    this.animated = false
+                                    clearInterval(interval)
+                                }
                             }
-                        }
-                    })
-                }
-            },50)
+                        })
+                    }
+              },50)
+            }
         }
     }
 }
