@@ -102,6 +102,7 @@ class NavbarElement {
         if(this.scale > 1) {
             this.scale = 1
             this.dir = 0
+            window.location = this.link.href
         }
         if(this.scale < 0) {
             this.scale = 0
