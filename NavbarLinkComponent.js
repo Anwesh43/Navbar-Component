@@ -136,3 +136,4 @@ class AnimationHandler {
         }
     }
 }
+customElements.define('nav-bar-link',NavbarLinkComponent)
