@@ -72,11 +72,12 @@ class NavbarElement {
         context.fillStyle = 'white'
         context.fillText(this.link.title,this.x+size/4,this.y)
         context.strokeStyle = '#00838F'
+        context.lineWidth = h/100
         const mx = this.x+size/2
         for(var i=0;i<2;i++) {
             context.beginPath()
             context.moveTo(mx,this.y+fontSize/2)
-            context.lineTo(mx-((2*i-1)*(size/2)*this.scale),this.y+fontSize/2)
+            context.lineTo(mx-((2*i-1)*(size/4)*this.scale),this.y+fontSize/2)
             context.stroke()
         }
     }
