@@ -3,7 +3,7 @@ class NavbarLinkComponent extends HTMLElement {
     constructor() {
         super()
         this.div = document.createElement('div')
-        this.color = this.getAttribute('color')
+        this.color = this.getAttribute('color') || '#c62828'
         const shadow = this.attachShadow({mode:'open'})
         shadow.appendChild(this.div)
         const children = this.children
@@ -36,10 +36,16 @@ class NavbarLinkComponent extends HTMLElement {
                 x += link.tw
             })
         }
+        this.elements.draw(context)
         this.div.style.background = canvas.toDataURL()
     }
     connectedCallback() {
         this.render()
+        this.animationHandler = new AnimationHandler(this)
+        this.div.onmousedown = (event) => {
+            const x = event.offsetX
+            this.animationHandler.handleTap(x)
+        }
     }
     handleTap(x) {
         const tappedElements = this.elements.filter((element)=>element.handleTap(x))
