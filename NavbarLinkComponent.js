@@ -30,14 +30,19 @@ class NavbarLinkComponent extends HTMLElement {
                 link.tw = (context.measureText(link.title).width)*2
                 tw += link.tw
             })
+            console.log(tw)
+            console.log(this.links)
             var x = w - tw
             this.links.forEach((link,index) => {
-                this.elements.push(new NavbarElement(x,canvas.height/2,link)
+                this.elements.push(new NavbarElement(x,canvas.height/2,link))
                 x += link.tw
+                console.log(x)
             })
         }
-        this.elements.draw(context)
-        this.div.style.background = canvas.toDataURL()
+        this.elements.forEach((elem)=>{
+          elem.draw(context)
+        })
+        this.div.style.background = `url(${canvas.toDataURL()})`
     }
     connectedCallback() {
         this.render()
@@ -65,13 +70,13 @@ class NavbarElement {
     draw(context) {
         const size = this.link.tw
         context.fillStyle = 'white'
-        context.fillText(this.link.text,size/4,this.y)
+        context.fillText(this.link.title,this.x+size/4,this.y)
         context.strokeStyle = '#00838F'
         const mx = this.x+size/2
         for(var i=0;i<2;i++) {
             context.beginPath()
             context.moveTo(mx,this.y+fontSize/2)
-            context.lineTo(mx-(2*i-1)*(size/2)*this.scale,this.y+fontSize/2)
+            context.lineTo(mx-((2*i-1)*(size/2)*this.scale),this.y+fontSize/2)
             context.stroke()
         }
     }
@@ -85,7 +90,7 @@ class NavbarElement {
     }
     handleTap(x) {
         const size = this.link.tw
-        const condition = x>=this.x && x<=this.x+size && dir == 0
+        const condition = x>=this.x && x<=this.x+size && this.dir == 0
         if(condition) {
             this.startUpdating()
         }
@@ -108,7 +113,7 @@ class NavbarElement {
 }
 class AnimationHandler {
     constructor(component) {
-        this.component.render()
+        this.component = component
         this.animated = false
         this.elements = []
     }
@@ -117,6 +122,7 @@ class AnimationHandler {
         if(tappedElement) {
             this.elements.push(tappedElement)
             if(this.animated == false) {
+                this.animated = true
                 const interval = setInterval(()=>{
                     if(this.animated == true) {
                         this.component.render()
