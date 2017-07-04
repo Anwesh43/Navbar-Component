@@ -80,3 +80,29 @@ class NavbarElement {
         return this.dir == 0
     }
 }
+class AnimationHandler {
+    constructor(component) {
+        this.component.render()
+        this.animated = false
+        this.elements = []
+    }
+    handleTap(x) {
+        if(this.animated == false) {
+            const interval = setInterval(()=>{
+                if(this.animated == true) {
+                    this.component.render()
+                    this.elements.forEach((element,index)=>{
+                        element.update()
+                        if(element.stopped() == true) {
+                            this.elements.splice(index,1)
+                            if(this.elements.length == 0) {
+                                this.animated = false
+                                clearInterval(interval)
+                            }
+                        }
+                    })
+                }
+            },50)
+        }
+    }
+}
